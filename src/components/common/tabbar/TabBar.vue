@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import TabBarItem from './TabBarItem'
+import TabBarItem from '../../content/mainTabbar/TabBarItem'
   export default {
     name: 'TabBar',
     components: {
