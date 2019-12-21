@@ -14,6 +14,7 @@
 </template>
 
 <script>
+  import SwiperItem from './SwiperItem'
 	export default {
     name: "Swiper",
     props: {
