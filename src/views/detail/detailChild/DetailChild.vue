@@ -1,11 +1,11 @@
 <template>
   <div>
-    <nav-bar>
+    <nav-bar >
       <div slot="left" class="back" @click="back">
         <img src="@/assets/img/common/back.svg" alt="">
       </div>
       <div slot="center" class="title">
-        <div v-for="(item,index) in titles" :key="index" class="title-item" @click="titleClick(index)" :class="{action:currentIndex==index}">{{item}}</div>
+        <div v-for="(item,index) in titles" :key="index" class="title-item" @click="titleClick(index)" :class="{action:currentIndex==index}" ref="nav">{{item}}</div>
       </div>
     </nav-bar>
   </div>
@@ -26,7 +26,8 @@ export default {
   },
   methods: {
     titleClick(index) {
-      this.currentIndex = index
+      this.currentIndex = index,
+      this.$emit('titleClick',index)
     },
     back() {
       this.$router.back()

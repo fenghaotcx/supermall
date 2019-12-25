@@ -3,7 +3,7 @@
     <div v-if="Object.keys(commentInfo).length !== 0" class="comment-info">
       <div class="info-header">
         <div class="header-title">用户评价</div>
-        <div class="header-more">
+        <div class="header-more" >
           更多
           <i class="arrow-right"></i>
         </div>
@@ -19,7 +19,7 @@
           <span>{{commentInfo.style}}</span>
         </div>
         <div class="info-imgs">
-          <img :src="item" v-for="(item, index) in commentInfo.images">
+          <img :src="item" v-for="(item, index) in commentInfo.images" :key="index">
         </div>
       </div>
     </div>

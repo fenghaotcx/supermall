@@ -1,18 +1,27 @@
 <template>
   <div id="detail">
-    <detail-child class="detail-ch"></detail-child>
-    <scroll class="content">
+    <detail-child class="detail-ch" @titleClick="detailClick"></detail-child>
+    <scroll class="content" ref="scroll" @scroll="contentScroll" :probe-type="3">
       <detail-swiper :topImages="topImages" :current-index="currentIndex"></detail-swiper>
-      <detail-base-info :goods="goods" class="base-info" />
+      <detail-base-info :goods="goods" class="base-info" ref="base" />
       <detail-shop-info :shop="shop" class="base-info" />
-      <detail-goods-info :detailInfo="detailInfo" class="base-info"/>
-      <detail-param-info :paramInfo="paramInfo" class="base-info"/>
+      <detail-goods-info :detailInfo="detailInfo" class="base-info" />
+      <detail-param-info :paramInfo="paramInfo" class="base-info" ref="param" />
+      <detail-comment-info :commentInfo="commentInfo" ref="comment" />
+      <goods-item :goods="recommendList" ref="recommend" />
     </scroll>
+    <detail-bottom-bar @addToCart="addCart"></detail-bottom-bar>
   </div>
 </template>
 
 <script>
-import { getDetailGoods, Goods, GoodsParam, Shop } from "@/network/home";
+import {
+  getDetailGoods,
+  Goods,
+  GoodsParam,
+  Shop,
+  getRecommend
+} from "@/network/home";
 import DetailChild from "./detailChild/DetailChild";
 import DetailSwiper from "./detailChild/DetailSwiper";
 
@@ -21,6 +30,9 @@ import DetailShopInfo from "./childComps/DetailShopInfo";
 import Scroll from "@/components/common/scroll/Scroll";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailParamInfo from "./childComps/DetailParamInfo";
+import DetailCommentInfo from "./childComps/DetailCommentInfo";
+import GoodsItem from "@/components/content/goods/GoodsItem";
+import DetailBottomBar from "./childComps/DetailBottomBar";
 
 export default {
   name: "Detail",
@@ -35,7 +47,9 @@ export default {
       commentInfo: {},
       recommendList: [],
       themeTops: [],
-      currentIndex: 0
+      currentIndex: 0,
+      themeTops: [],
+      falg: true
     };
   },
   components: {
@@ -45,13 +59,15 @@ export default {
     DetailShopInfo,
     Scroll,
     DetailGoodsInfo,
-    DetailParamInfo
+    DetailParamInfo,
+    DetailCommentInfo,
+    GoodsItem,
+    DetailBottomBar
   },
   created() {
     (this.iid = this.$route.query.iid),
       getDetailGoods(this.iid).then(res => {
         const data = res.result;
-        console.log(res);
         this.topImages = data.itemInfo.topImages;
         this.goods = new Goods(
           data.itemInfo,
@@ -74,7 +90,54 @@ export default {
           this.commentInfo = data.rate.list[0];
         }
       });
-  }
+
+    getRecommend().then(res => {
+      console.log(res);
+      this.recommendList = res.data.list;
+    });
+    this.$nextTick(() => {});
+  },
+  methods: {
+    detailClick(index) {
+      if (this.falg) {
+        this.themeTops = [0];
+        this.themeTops.push(this.$refs.param.$el.offsetTop);
+        this.themeTops.push(this.$refs.comment.$el.offsetTop);
+        this.themeTops.push(this.$refs.recommend.$el.offsetTop);
+        this.falg = false;
+      }
+      this.$refs.scroll.scrollTop(0, -this.themeTops[index], 200);
+    },
+
+    contentScroll(position) {
+      let positionY = -position.y;
+      this.listenScrollTheme(positionY);
+    },
+    listenScrollTheme(positionY) {
+      let length = this.themeTops.length;
+      for (let i = 0; i < length; i++) {
+        let iPos = this.themeTops[i];
+        if (positionY >= iPos && positionY < this.themeTops[i + 1]) {
+          if (this.currentIndex !== i) {
+            this.currentIndex = i;
+          }
+          break;
+        }
+      }
+    },
+    addCart() {
+      const obj = {};
+      // 2.对象信息
+      obj.iid = this.iid;
+      obj.imgURL = this.topImages[0];
+      obj.title = this.goods.title;
+      obj.desc = this.goods.desc;
+      obj.newPrice = this.goods.nowPrice;
+      // 3.添加到Store中
+      this.$store.commit("addCart", obj);
+    }
+  },
+  updated() {}
 };
 </script>
 
@@ -101,8 +164,6 @@ export default {
 .base-info {
   background-color: #fff;
 }
-
-
 
 .detail-ch {
   position: relative;
