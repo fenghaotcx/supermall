@@ -10,7 +10,7 @@
       <detail-comment-info :commentInfo="commentInfo" ref="comment" />
       <goods-item :goods="recommendList" ref="recommend" />
     </scroll>
-    <detail-bottom-bar @addToCart="addCart"></detail-bottom-bar>
+    <detail-bottom-bar @addToCart="addCart" />
   </div>
 </template>
 
@@ -133,8 +133,9 @@ export default {
       obj.title = this.goods.title;
       obj.desc = this.goods.desc;
       obj.newPrice = this.goods.nowPrice;
+      obj.count = 0
       // 3.添加到Store中
-      this.$store.commit("addCart", obj);
+      this.$store.commit("addCart", obj);      
     }
   },
   updated() {}
